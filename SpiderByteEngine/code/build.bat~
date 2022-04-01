@@ -1,0 +1,16 @@
+@echo off
+set CommonCompilerFlags=-nologo -Zi -EHsc -FC
+set CommonLinkerFlags="user32.lib" "opengl32.lib" "gdi32.lib" "..\SpiderByteEngine\code\includes\libs\glfw3.lib" "shell32.lib"
+REM TODO - can we just build both with one exe?
+IF NOT EXIST ..\..\build mkdir ..\..\build
+pushd ..\..\build
+
+REM 32-bit Build
+rem cl  %CommonCompilerFlags% ..\SpiderByteEngine\code\MainEngine.cpp ..\SpiderByteEngine\code\glad.c -Ig:\SpiderByteEngine\code\includes\ /link %CommonLinkerFlags%
+
+REM 64-bit Build
+cl  %CommonCompilerFlags% ..\SpiderByteEngine\code\MainEngine.cpp ..\SpiderByteEngine\code\glad.c -Ig:\SpiderByteEngine\code\includes\ /link %CommonLinkerFlags%
+popd
+
+
+

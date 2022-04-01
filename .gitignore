@@ -1,0 +1,8 @@
+RequiredTools/ 
+Engine/misc/emacs.bat
+SpiderByteEngine/misc/cmake-3.23.0-windows-x86_64/
+SpiderByteEngine/misc/glad/
+SpiderByteEngine/misc/glfw-3.3.6
+*.obj
+*.pdb
+*.ilk

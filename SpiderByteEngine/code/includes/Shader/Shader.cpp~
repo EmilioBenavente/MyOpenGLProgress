@@ -1,0 +1,37 @@
+#include <glad/glad.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+Shader::Shader(const char* VertPath, const char* FragPath)
+{
+  std::string VertexCode;
+  std::string FragmentCode;
+  std::ifstream VertFileBuffer;
+  std::ifstream FragFileBuffer;
+  VertFileBuffer.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  FragFileBuffer.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+  try
+    {
+      VertFileBuffer.open(VertPath);
+      FragFileBuffer.open(FragPath);
+
+      std::stringstream VertShaderStream;
+      std::stringstream FragShaderStream;
+
+      VertShaderStream << VertFileBuffer.rdbuf();
+      FragShaderStream << FragFileBuffer.rdbuf();
+
+      VertFileBuffer.close();
+      FragFileBuffer.close();
+
+      VertexCode = VertShaderStream.str();
+      FragCode = FragShaderStream.str();
+    }
+  catch(std::ifstream::failure e)
+    {
+      printf("SPI_ERROR -> Unable to extract data from ShaderFiles with given path\n"
+             "Vertex Shader Path -> %s\nFragment Shader Path -> %s\n", VertPath, FragPath);
+    }
+}

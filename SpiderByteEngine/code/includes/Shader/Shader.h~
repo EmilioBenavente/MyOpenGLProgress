@@ -1,0 +1,21 @@
+#ifndef SHADER_H
+#define SHADER_H
+
+#include <glad/glad.h>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+class Shader
+{
+ public:
+  unsigned int ID;
+  Shader(const char* VertFile, const char* FragFile);
+
+  void Use();
+  void SetBool();
+  void SetInt();
+  void SetFloat();
+};
+
+#endif

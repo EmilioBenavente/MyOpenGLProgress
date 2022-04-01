@@ -1,0 +1,200 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stdio.h>
+
+#define WIDTH 800
+#define HEIGHT 600
+
+void FramebufferResize(GLFWwindow* Window, int Width, int Height);
+void ProcessInput(GLFWwindow* Window);
+
+//@TODO(Emilio): This is a compiled shader through c star -> soon text file
+const char* VertFile =
+	  "#version 330 core\n"
+	  "layout (location = 0) in vec3 Pos;"
+	  "void main() {gl_Position = vec4(Pos, 1.0);}\0";
+
+const char* FragFile =
+	  "#version 330 core\n"
+	  "out vec4 FragColor;"
+	  "void main(){FragColor = vec4(0.1, 0.1, 0.6, 1.0);}\0";
+
+const char* VertFile2 =
+	  "#version 330 core\n"
+	  "layout (location = 0) in vec3 Pos;\n"
+	  "void main(){gl_Position = vec4(Pos.x,Pos.y,Pos.y, 1.0);}\0";
+
+const char* FragFile2 =
+	  "#version 330 core\n"
+	  "out vec4 FragColor;\n"
+	  "void main(){FragColor = vec4(0.3,0.3,0.3,1.0);}\0";
+
+
+int main()
+{
+  glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  //@NOTE(Emilio): This is for MacOS Compilation
+  //  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+  GLFWwindow* MainWindow = glfwCreateWindow(WIDTH, HEIGHT, "HelloOpenGL", 0,0);
+  if(!MainWindow)
+    {
+      printf("SPI_ERR -> Unable to create Window\n");
+      glfwTerminate();
+      return -1;
+    }
+  glfwMakeContextCurrent(MainWindow);
+
+  if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+      printf("SPI_ERR -> Unable to load the GLAD library\n");
+      glfwTerminate();
+      return -1;
+    }
+  glViewport(0,0,WIDTH,HEIGHT);
+  
+  //@NOTE(Emilio): A collection of callback functions for opengl to use  
+  glfwSetFramebufferSizeCallback(MainWindow, FramebufferResize);
+
+
+  float TriVerts[] =
+    {
+      -0.5f, -0.5f, 0.0f,
+      0.5f, -0.5f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+    };
+
+  float TriVerts2[] =
+    {
+      -0.9f, -0.5f, 0.0f,
+      0.9f, -0.5f, 0.0f,
+      0.0f, 0.9f, 0.0f,
+    };
+
+  unsigned int VAO[2];
+  unsigned int VBO[2];
+  glGenVertexArrays(2, &VAO[0]);
+  glBindVertexArray(VAO[0]);
+  glGenBuffers(2, &VBO[0]);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(TriVerts), TriVerts, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GL_FLOAT),(void*)0);
+  glEnableVertexAttribArray(0);
+
+  glBindVertexArray(VAO[1]);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(TriVerts2), TriVerts2, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GL_FLOAT), (void*)0);
+  glEnableVertexAttribArray(0);
+
+  unsigned int VertID = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(VertID, 1, &VertFile, 0);
+  glCompileShader(VertID);
+
+  int SUCCESS;
+  char InfoLog[512];
+  glGetShaderiv(VertID, GL_COMPILE_STATUS, &SUCCESS);
+  if(!SUCCESS)
+    {
+      glGetShaderInfoLog(VertID, 512, 0, InfoLog);
+      printf("SPI_ERR -> Unable to compile Shader ID:%d\n%s\n", VertID, InfoLog);
+      glfwTerminate();
+      return -1;
+    }
+  
+  unsigned int FragID = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(FragID, 1, &FragFile, 0);
+  glCompileShader(FragID);
+  glGetShaderiv(FragID, GL_COMPILE_STATUS, &SUCCESS);
+  if(!SUCCESS)
+    {
+      glGetShaderInfoLog(FragID, 512, 0, InfoLog);
+      printf("SPI_ERR -> Unable to compile Shader ID:%d\n%s\n", FragID, InfoLog);
+      glfwTerminate();
+      return -1;
+    }
+
+  unsigned int ShaderProgramID = glCreateProgram();
+  glAttachShader(ShaderProgramID, VertID);
+  glAttachShader(ShaderProgramID, FragID);
+  glLinkProgram(ShaderProgramID);
+  glGetProgramiv(ShaderProgramID, GL_LINK_STATUS, &SUCCESS);
+  if(!SUCCESS)
+    {
+      glGetProgramInfoLog(ShaderProgramID, 512, 0, InfoLog);
+      printf("SPI_ERR -> Unable to link the Shader Program[%d]\n"
+	     "With Vert Shader[%d]\n"
+	     "and Frag Shader[%d]\n%s\n", ShaderProgramID, VertID, FragID, InfoLog);
+    }
+  glUseProgram(ShaderProgramID);
+  glDeleteShader(VertID);
+  glDeleteShader(FragID);
+
+  unsigned int VertID2 = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(VertID2, 1, &VertFile2, 0);
+  glCompileShader(VertID2);
+
+  unsigned int FragID2 = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(FragID2, 1, &FragFile2, 0);
+  glCompileShader(FragID2);
+
+  unsigned int ShaderProgramID2 = glCreateProgram();
+  glAttachShader(ShaderProgramID2, VertID2);
+  glAttachShader(ShaderProgramID2, FragID2);
+  glLinkProgram(ShaderProgramID2);
+  glDeleteShader(VertID2);
+  glDeleteShader(FragID2);
+  
+  
+  //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  //@NOTE(Emilio): Main Game Loop
+  int i = 0;
+  while(!glfwWindowShouldClose(MainWindow))
+    {
+      ProcessInput(MainWindow);
+
+      glClearColor(0.73f, 0.46f, 0.12f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT);
+
+      if(i < 100)
+	{
+	  glUseProgram(ShaderProgramID);
+	  glBindVertexArray(VAO[0]);
+	  glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+      else if(i > 200)
+	{
+	  i = 0;
+	}
+      else
+	{
+	  glUseProgram(ShaderProgramID2);
+	  glBindVertexArray(VAO[1]);
+	  glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+
+      glfwSwapBuffers(MainWindow);
+      glfwPollEvents();
+      ++i;
+    }
+  
+  glfwTerminate();
+  return 0;
+}
+
+
+void FramebufferResize(GLFWwindow* Window, int Width, int Height)
+{
+  glViewport(0,0,Width,Height);
+}
+
+void ProcessInput(GLFWwindow* Window)
+{
+  if(glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+      glfwSetWindowShouldClose(Window, GL_TRUE);
+    }
+}
