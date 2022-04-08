@@ -4,6 +4,11 @@
 #include <fstream>
 #include <sstream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+
 Shader::Shader(const char* VertPath, const char* FragPath)
 {
   std::string VertexCode;
@@ -50,7 +55,7 @@ Shader::Shader(const char* VertPath, const char* FragPath)
   if(!SUCCESS)
     {
       glGetShaderInfoLog(Vertex, 512, 0, InfoLog);
-      printf("SPI_ERROR -> Unable to Compile the Vertex Shader With Given Path %s\nand ID[%d]\n", VertPath, Vertex);
+      printf("SPI_ERROR -> Unable to Compile the Vertex Shader With Given Path %s\nand ID[%d]\n%s\n", VertPath, Vertex, InfoLog);
     }
   Fragment = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(Fragment, 1, &FragShaderCode, 0);
@@ -59,7 +64,7 @@ Shader::Shader(const char* VertPath, const char* FragPath)
   if(!SUCCESS)
     {
       glGetShaderInfoLog(Fragment, 512, 0, InfoLog);
-      printf("SPI_ERROR -> Unable to Compile the Fragment Shader With Given Path %s\nand ID[%d]\n", FragPath, Fragment);
+      printf("SPI_ERROR -> Unable to Compile the Fragment Shader With Given Path %s\nand ID[%d]\n%s\n", FragPath, Fragment, InfoLog);
     }
   PROGRAM_ID = glCreateProgram();
   glAttachShader(PROGRAM_ID, Vertex);
@@ -133,4 +138,34 @@ void Shader::SetFloat3(char* Name, float A, float B, float C)
 void Shader::SetFloat4(char* Name, float A, float B, float C, float D)
 {
   glUniform4f(glGetUniformLocation(PROGRAM_ID, Name), A, B, C, D);
+}
+
+void Shader::SetVec2(char* Name, glm::vec2 Value)
+{
+  glUniform2f(glGetUniformLocation(PROGRAM_ID, Name), Value.x, Value.y);
+}
+
+void Shader::SetVec3(char* Name, glm::vec3 Value)
+{
+  glUniform3f(glGetUniformLocation(PROGRAM_ID, Name), Value.x, Value.y, Value.z);
+}
+
+void Shader::SetVec4(char* Name, glm::vec4 Value)
+{
+  glUniform4f(glGetUniformLocation(PROGRAM_ID, Name), Value.x, Value.y, Value.z, Value.w);
+}
+
+void Shader::SetMat2(char* Name, glm::mat2 Value)
+{
+  glUniformMatrix2fv(glGetUniformLocation(PROGRAM_ID, Name), 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void Shader::SetMat3(char* Name, glm::mat3 Value)
+{
+  glUniformMatrix3fv(glGetUniformLocation(PROGRAM_ID, Name), 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void Shader::SetMat4(char* Name, glm::mat4 Value)
+{
+  glUniformMatrix4fv(glGetUniformLocation(PROGRAM_ID, Name), 1, GL_FALSE, glm::value_ptr(Value));
 }

@@ -1,6 +1,8 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <glm/glm.hpp>
+
 class Shader
 {
  public:
@@ -22,14 +24,12 @@ class Shader
   void SetFloat3(char* Name, float A, float B, float C);
   void SetFloat4(char* Name, float A, float B, float C, float D);
 
-  //@TODO(Emilio): These functions will be added once we include
-  //the GLM Library
-  /* void SetVec2(); */
-  /* void SetVec3(); */
-  /* void SetVec4(); */
+  void SetVec2(char* Name, glm::vec2 Value);
+  void SetVec3(char* Name, glm::vec3 Value);
+  void SetVec4(char* Name, glm::vec4 Value);
 
-  /* void SetMat2(); */
-  /* void SetMat3(); */
-  /* void SetMat4();   */
+  void SetMat2(char* Name, glm::mat2 Value);
+  void SetMat3(char* Name, glm::mat3 Value);
+  void SetMat4(char* Name, glm::mat4 Value);
 };
 #endif

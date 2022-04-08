@@ -1,8 +1,12 @@
 RequiredTools/ 
-Engine/misc/emacs.bat
 SpiderByteEngine/misc/cmake-3.23.0-windows-x86_64/
 SpiderByteEngine/misc/glad/
-SpiderByteEngine/misc/glfw-3.3.6
+SpiderByteEngine/misc/glfw-3.3.6/
+SpiderByteEngine/misc/glm-0.9.8.5/
+SpiderByteEngine/misc/assimp/
+SpiderByteEngine/misc/survival-guitar-backpack-low-poly/
+SpiderByteEngine/code/includes/HELP/
 *.obj
 *.pdb
 *.ilk
+*~
