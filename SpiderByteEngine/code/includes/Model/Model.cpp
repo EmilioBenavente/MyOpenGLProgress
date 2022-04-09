@@ -18,13 +18,12 @@ Model::Model(char* Path)
   LoadModel(Path);
 }
 
-
 void Model::LoadModel(std::string path)
 {
   Assimp::Importer Importer;
   const aiScene* Scene = Importer.ReadFile(path,
-		         aiProcess_Triangulate);// |
-  //	         aiProcess_FlipUVs);
+					   aiProcess_Triangulate);// |
+	         // aiProcess_FlipUVs);
   if(!Scene || Scene->mFlags &
      AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
     {
@@ -43,7 +42,7 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
 {
   std::string filename = std::string(path);
     filename = directory + '/' + filename;
-
+    
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
@@ -148,14 +147,14 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* Scene)
       std::vector<Texture> DiffuseMaps =
 	LoadMatTextures(Materials,
 			     aiTextureType_DIFFUSE,
-			     "texture_diffuse");
+			     "Diffuse");
       Textures.insert(Textures.end(),
 		      DiffuseMaps.begin(),
 		      DiffuseMaps.end());
       std::vector<Texture> SpecularMaps =
 	LoadMatTextures(Materials,
 			     aiTextureType_SPECULAR,
-			     "texture_specular");
+			     "Specular");
       Textures.insert(Textures.end(),
 		      SpecularMaps.begin(),
 		      SpecularMaps.end());
@@ -177,13 +176,12 @@ std::vector<Texture> Model::LoadMatTextures(
 		     std::string TypeName)
 {
   std::vector<Texture> Textures;
-  printf("%d\n",Mat->GetTextureCount(Type));
   for(unsigned int i = 0; i <
 	Mat->GetTextureCount(Type); ++i)
     {
       aiString Str;
       Mat->GetTexture(Type, i, &Str);
-      int IsCached = 0;
+      int IsNotCached = 1;
       for(unsigned int j = 0; j <
 	    Textures_Loaded.size(); ++j)
 	{
@@ -192,13 +190,12 @@ std::vector<Texture> Model::LoadMatTextures(
 	      Str.C_Str()) == 0)
 	    {
 	      Textures.push_back(Textures_Loaded[j]);
-	      IsCached = 1;
+	      IsNotCached = 0;
 	      break;
 	    }
 	}
-      if(!IsCached)
+      if(IsNotCached)
 	{
-	  printf("%d\n", Textures.size());
 	  Texture texture;
 	  texture.ID = TextureFromFile(Str.C_Str(),
 				       Directory,

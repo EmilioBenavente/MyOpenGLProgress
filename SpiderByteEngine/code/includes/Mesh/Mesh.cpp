@@ -42,7 +42,11 @@ void Mesh::SetUpMesh()
 			(void*)offsetof(Vertex, Normal));
 
   glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+			(void*)offsetof(Vertex, Position));
+  
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 			(void*)offsetof(Vertex, TexCoords));
 
   glBindVertexArray(0);
@@ -56,15 +60,12 @@ void Mesh::Draw(Shader& shader)
   unsigned int DiffuseNum = 1;
   unsigned int SpecularNum = 1;
 
-
-      for(unsigned int i = 0; i < Textures.size(); ++i)
+  for(unsigned int i = 0; i < Textures.size(); ++i)
     {
       glActiveTexture(GL_TEXTURE + i);
       std::string Number;
       std::string Name = Textures[i].Type;
-      printf("Made it here!\n");
-      printf("Here -> %s\n", Name.c_str());
-      if(Name == "texture_diffuse")
+      if(Name == "Diffuse")
 	{
 	  Number = std::to_string(DiffuseNum++);	  
 	}
@@ -72,9 +73,8 @@ void Mesh::Draw(Shader& shader)
 	{
 	  Number = std::to_string(SpecularNum++);
 	}
-
       shader.SetFloat((char*)("Material." + Name + Number).c_str(), i);
-      glBindTexture(GL_TEXTURE_2D, Textures[i].ID);      
+      glBindTexture(GL_TEXTURE_2D, Textures[i].ID - 1);//@NOTE(Emilio): <- (ID - 1) is weird!!?      
     }
   glActiveTexture(GL_TEXTURE0);
 

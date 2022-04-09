@@ -4,18 +4,20 @@ in vec4 VertexColor;
 in vec3 Normals;
 in vec2 TexCoords;
 in vec3 FragWorldPos;
+in vec3 OutColor;
 
 uniform vec4 UniColor;
-uniform sampler2D UniTexCoords;
-uniform sampler2D UniTexCoords2;
 uniform vec3 ObjectColor;
 uniform vec3 CameraPos;
 
 struct MaterialStruct
 {
-  sampler2D Ambient;
-  sampler2D Diffuse;
-  sampler2D Specular;
+  sampler2D Diffuse1;
+  sampler2D Diffuse2;
+  sampler2D Diffuse3;  
+  sampler2D Specular1;
+  sampler2D Specular2;
+  sampler2D Specular3;  
 
   float Shininess;
 };
@@ -78,13 +80,13 @@ void main()
   vec3 Normal = normalize(Normals);
   vec3 CameraDir = normalize(CameraPos - FragWorldPos);
 
-  
-  vec3 PreLight = ObjectColor * mix(vec3(texture(UniTexCoords,
-						  TexCoords)),
-				    vec3(texture(UniTexCoords2,
-						 TexCoords)), 0.6);
-  vec3 ResultColor = ObjectColor;
-   ResultColor *= CalcDirLight(DirLight, Normal, CameraDir);
+
+  vec3 PreLight =  OutColor * mix(vec3(texture(Material.Diffuse1,
+				     		  TexCoords)),
+				     vec3(texture(Material.Specular1,
+				     		 TexCoords)), 0.5);
+  vec3 ResultColor = PreLight;
+   ResultColor += CalcDirLight(DirLight, Normal, CameraDir);
 
   for(int i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
@@ -107,14 +109,14 @@ vec3 CalcDirLight(DirectionLight DirLight, vec3 Normal, vec3 ViewDir)
   float SpecularRAD = pow(max(dot(ViewDir, ReflectDir), 0.0),
 				Material.Shininess);
   
-  vec3 Ambient = DirLight.AmbientIntensity
-                 * vec3(texture(Material.Ambient,TexCoords));
+  // vec3 Ambient = DirLight.AmbientIntensity
+  //                * vec3(texture(Material.Ambient,TexCoords));
   vec3 Diffuse = DirLight.DiffuseIntensity * DiffRAD *
-                 vec3(texture(Material.Diffuse,TexCoords));
+                 vec3(texture(Material.Diffuse1,TexCoords));
   vec3 Specular = DirLight.SpecularIntensity * SpecularRAD *
-                  vec3(texture(Material.Specular, TexCoords));
+                  vec3(texture(Material.Specular1, TexCoords));
 
-  return (Ambient + Diffuse + Specular);
+  return (Diffuse + Specular);
 }
 
 vec3 CalcPointLight(PointLight PointLight, vec3 Normal,
@@ -131,17 +133,17 @@ vec3 CalcPointLight(PointLight PointLight, vec3 Normal,
 			   (PointLight.LinearK * Distance) +
 			   (PointLight.QuadK * (Distance * Distance)));
 
-  vec3 Ambient = PointLight.AmbientIntensity
-                 * vec3(texture(Material.Ambient,TexCoords))
-                 * Attenuation;
+  // vec3 Ambient = PointLight.AmbientIntensity
+  //                * vec3(texture(Material.Ambient,TexCoords))
+  //                * Attenuation;
   vec3 Diffuse = PointLight.DiffuseIntensity * DiffRAD *
-                 vec3(texture(Material.Diffuse,TexCoords))
+                 vec3(texture(Material.Diffuse1,TexCoords))
                  * Attenuation;
   vec3 Specular = PointLight.SpecularIntensity * SpecRAD *
-                  vec3(texture(Material.Specular, TexCoords))
+                  vec3(texture(Material.Specular1, TexCoords))
                  * Attenuation;
 
-  return (Ambient + Diffuse + Specular);  
+  return (Diffuse + Specular);  
 }
 
 
@@ -168,16 +170,16 @@ vec3 CalcSpotLight(SpotLightStruct SpotLight, vec3 Normals,
       float Intensity = clamp((Theta - SpotLight.OuterConeCutoffRAD)
 			      / Epsilon, 0.0, 1.0);
   
-      vec3 Ambient = SpotLight.AmbientIntensity
-	* vec3(texture(Material.Ambient,TexCoords))
-	* Attenuation;
+      // vec3 Ambient = SpotLight.AmbientIntensity
+      // 	* vec3(texture(Material.Ambient,TexCoords))
+      // 	* Attenuation;
       vec3 Diffuse = SpotLight.DiffuseIntensity * DiffRAD *
-	vec3(texture(Material.Diffuse,TexCoords))
+	vec3(texture(Material.Diffuse1,TexCoords))
 	* Attenuation;
       vec3 Specular = SpotLight.SpecularIntensity * SpecRAD *
-	vec3(texture(Material.Specular, TexCoords))
+	vec3(texture(Material.Specular1, TexCoords))
 	* Attenuation;
-      return (Ambient + Diffuse + Specular);    
+      return (Diffuse + Specular);    
     }
   return vec3(0.0f);
 }
