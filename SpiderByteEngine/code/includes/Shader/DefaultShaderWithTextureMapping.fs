@@ -72,11 +72,18 @@ vec3 CalcPointLight(PointLight PointLight, vec3 Normal,
 		    vec3 FragWorldPos, vec3 ViewDir);
 vec3 CalcSpotLight(SpotLightStruct SpotLight, vec3 Normal, vec3 FragWorldPos, vec3 ViewDir);
 
+in vec4 InPos;
   
 out vec4 FragColor;
 
 void main()
 {
+
+  if(InPos.z < 2.0)
+    {
+      discard;
+    }
+
   vec3 Normal = normalize(Normals);
   vec3 CameraDir = normalize(CameraPos - FragWorldPos);
 
@@ -96,7 +103,7 @@ void main()
   ResultColor += CalcSpotLight(SpotLight, Normal,
 			       FragWorldPos, CameraDir);
   
-  FragColor = vec4(ResultColor, 1.0);
+  FragColor = vec4(ResultColor, 1.0) * UniColor;
 }
 
 
@@ -170,7 +177,7 @@ vec3 CalcSpotLight(SpotLightStruct SpotLight, vec3 Normals,
       float Intensity = clamp((Theta - SpotLight.OuterConeCutoffRAD)
 			      / Epsilon, 0.0, 1.0);
   
-      // vec3 Ambient = SpotLight.AmbientIntensity
+      // Vec3 Ambient = SpotLight.AmbientIntensity
       // 	* vec3(texture(Material.Ambient,TexCoords))
       // 	* Attenuation;
       vec3 Diffuse = SpotLight.DiffuseIntensity * DiffRAD *

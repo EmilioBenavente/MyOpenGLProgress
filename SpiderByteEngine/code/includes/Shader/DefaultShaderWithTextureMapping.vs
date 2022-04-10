@@ -15,9 +15,12 @@ out vec3 Normals;
 out vec3 FragWorldPos;
 out vec3 OutColor;
 
+out vec4 InPos;
+
 void main()
 {
   gl_Position = Projection * View * Model * vec4(Pos, 1.0);
+  InPos = gl_Position;
   TexCoords = UV;
   OutColor = Color;
   Normals = mat3(transpose(inverse(Model))) * Norm;
