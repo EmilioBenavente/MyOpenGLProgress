@@ -5,8 +5,12 @@ layout (location = 2) in vec2 InUVs;
 
 out vec2 TexCoords;
 
+uniform mat4 Projection;
+uniform mat4 View;
+uniform mat4 Model;
+
 void main()
 {
-  gl_Position = vec4(InPos.xy, 0.0,1.0);
+  gl_Position = Projection * View * Model * vec4(InPos.xy, 0.0,1.0);
   TexCoords = InUVs;
 }

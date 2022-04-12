@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <stdio.h>
+#include <vector>
 #include <math.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -27,6 +28,7 @@ void ProcessInput(GLFWwindow* Window);
 void ScrollCallback(GLFWwindow* Window, double XOffset,
 		    double YOffset);
 void InitTexture(unsigned int* TextureID, char* Path, int Num, int IsAlpha);
+void InitCubeMap(unsigned int* CubeID, std::vector<char*> FaceTextures);
 
 float DeltaTime = 0.0f;
 float LastFrame = 0.0f;
@@ -91,47 +93,47 @@ int main()
 
   float LightCubeVerts[] =
     {
-      -0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, 0.5f, -0.5f,
-      0.5f, 0.5f, -0.5f,
-      -0.5f, 0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
+      -1.0f,  1.0f, -1.0f,
+      -1.0f, -1.0f, -1.0f,
+      1.0f, -1.0f, -1.0f,
+      1.0f, -1.0f, -1.0f,
+      1.0f,  1.0f, -1.0f,
+      -1.0f,  1.0f, -1.0f,
 
-      -0.5f, -0.5f, 0.5f,
-      0.5f, -0.5f, 0.5f,
-      0.5f, 0.5f, 0.5f, 
-      0.5f, 0.5f, 0.5f,
-      -0.5f, 0.5f, 0.5f,
-      -0.5f, -0.5f, 0.5f,
-      
-      -0.5f, 0.5f, 0.5f,
-      -0.5f, 0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, -0.5f,
-      -0.5f, -0.5f, 0.5f,
-      -0.5f, 0.5f, 0.5f,
-      
-      0.5f, 0.5f, 0.5f,
-      0.5f, 0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, 0.5f,
-      0.5f, 0.5f, 0.5f,
-      
-      -0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, 0.5f,
-      0.5f, -0.5f, 0.5f,
-      -0.5f, -0.5f, 0.5f,
-      -0.5f, -0.5f, -0.5f,
-      
-      -0.5f, 0.5f, -0.5f,
-      0.5f, 0.5f, -0.5f,
-      0.5f, 0.5f, 0.5f,
-      0.5f, 0.5f, 0.5f,
-      -0.5f, 0.5f, 0.5f,
-      -0.5f, 0.5f, -0.5f,
+      -1.0f, -1.0f,  1.0f,
+      -1.0f, -1.0f, -1.0f,
+      -1.0f,  1.0f, -1.0f,
+      -1.0f,  1.0f, -1.0f,
+      -1.0f,  1.0f,  1.0f,
+      -1.0f, -1.0f,  1.0f,
+
+      1.0f, -1.0f, -1.0f,
+      1.0f, -1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f, -1.0f,
+      1.0f, -1.0f, -1.0f,
+
+      -1.0f, -1.0f,  1.0f,
+      -1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f, -1.0f,  1.0f,
+      -1.0f, -1.0f,  1.0f,
+
+      -1.0f,  1.0f, -1.0f,
+      1.0f,  1.0f, -1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      -1.0f,  1.0f,  1.0f,
+      -1.0f,  1.0f, -1.0f,
+
+      -1.0f, -1.0f, -1.0f,
+      -1.0f, -1.0f,  1.0f,
+      1.0f, -1.0f, -1.0f,
+      1.0f, -1.0f, -1.0f,
+      -1.0f, -1.0f,  1.0f,
+      1.0f, -1.0f,  1.0f
     };
 
   float CubeVerts[] =
@@ -258,7 +260,10 @@ int main()
   QuadShader.Use();
   QuadShader.SetInt("FrameTex", 0);
   
-  Shader CubeShader("../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.vs", "../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.fs");
+  Shader CubeShader("../SpiderByteEngine/code/includes/Shader/Reflection.vs",
+		     "../SpiderByteEngine/code/includes/Shader/Reflection.fs");
+  Shader CubeMapShader("../SpiderByteEngine/code/includes/Shader/DefaultCube.vs",
+		       "../SpiderByteEngine/code/includes/Shader/DefaultCube.fs");     
 
   CubeShader.Use();
   CubeShader.SetFloat("Offset", 0.26f);
@@ -313,14 +318,6 @@ int main()
 		      glm::cos(glm::radians(20.0f)));
   
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-		  GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-		  GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		  GL_NEAREST_MIPMAP_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-		  GL_NEAREST_MIPMAP_NEAREST);
   unsigned int RegTex[5];
   InitTexture(&RegTex[0], "../SpiderByteEngine/res/container.jpg", 0, 0);
   InitTexture(&RegTex[1], "../SpiderByteEngine/res/awesomeface.png", 1, 1);
@@ -334,12 +331,15 @@ int main()
   CubeShader.SetMat4("Projection", Persp);
   LightShader.Use();
   LightShader.SetMat4("Projection", Persp);
-
-  
   QuadShader.Use();
+  QuadShader.SetMat4("Projection", Persp);
+  CubeMapShader.Use();
+  CubeMapShader.SetMat4("Projection", Persp);
+  
+  
   unsigned int FBO;
   glGenFramebuffers(1, &FBO);
-  glBindBuffer(GL_FRAMEBUFFER, FBO);
+  glBindFramebuffer(GL_FRAMEBUFFER, FBO);
   unsigned int FrameTexture;
   InitTexture(&FrameTexture, 0,0,0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -362,11 +362,24 @@ int main()
     }
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
   
-   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
+   unsigned int CubeMap;   
+   std::vector<char*> Faces
+     {
+       "g:/SpiderByteEngine/res/skybox/right.jpg",
+       "g:/SpiderByteEngine/res/skybox/left.jpg",
+       "g:/SpiderByteEngine/res/skybox/top.jpg",
+       "g:/SpiderByteEngine/res/skybox/bottom.jpg",
+       "g:/SpiderByteEngine/res/skybox/front.jpg",
+       "g:/SpiderByteEngine/res/skybox/back.jpg"              
+     };
+   InitCubeMap(&CubeMap, Faces);
+   
+
+   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   //@NOTE(Emilio): Main Game Loop
-  //  glBindVertexArray(VAO[1]);  
-  //LightShader.Use();
-  while(!glfwWindowShouldClose(MainWindow))
+   while(!glfwWindowShouldClose(MainWindow))
     {
       float CurrentFrame = glfwGetTime();
       float GreenValue = (sin(CurrentFrame) / 2.0f) + 0.5f;
@@ -375,80 +388,115 @@ int main()
 
       ProcessInput(MainWindow);
       
-      glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-      glEnable(GL_DEPTH_TEST);
+      //      glBindFramebuffer(GL_FRAMEBUFFER, FBO);
       glClearColor(0.12f, 0.12f, 0.12f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
 
       
       glm::mat4 Model = glm::mat4(1.0f);
-      Model = glm::translate(Model, LightPos[0]);
-      LightShader.Use();
-      LightShader.SetMat4("Model", Model);      
-      LightShader.SetMat4("View", MyCamera.GetViewMatrix());
-      glBindVertexArray(VAO[0]);
+      Model = glm::translate(Model, CubePos[0]);
+
+      CubeShader.Use();      
+      CubeShader.SetMat4("View", MyCamera.GetViewMatrix());
+      CubeShader.SetMat4("Model", Model);	  
+      CubeShader.SetVec3("PointLights[0].Position", LightPos[0]);
+      CubeShader.SetVec3("PointLights[1].Position", LightPos[1]);
+      CubeShader.SetVec3("PointLights[2].Position", LightPos[2]);
+      CubeShader.SetVec3("PointLights[3].Position", LightPos[3]);
+      CubeShader.SetVec3("SpotLight.Position",
+			 MyCamera.Position);
+      CubeShader.SetVec3("CameraPos", MyCamera.Position);
+      CubeShader.SetVec3("SpotLight.Direction",
+			 MyCamera.Front);
+
+      glBindVertexArray(VAO[1]);	      	      
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, RegTex[0]);
       glDrawArrays(GL_TRIANGLES, 0, 36);
+      glBindVertexArray(0);
+
+      CubeShader.Use();
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, RegTex[0]);
+
+
+      CubeShader.SetFloat4("UniColor", 0.1f, GreenValue,
+			   0.35f, 1.0f);
+      glBindVertexArray(VAO[0]);
+      for(int i = 0; i < 4; ++i)
+	{
+	  glm::mat4 Model = glm::mat4(1.0f);
+	  LightPos[i].z = GreenValue * 2.0f;
+	  LightPos[i].y = GreenValue * 2.0f;
+	  LightPos[i].x = GreenValue * 5.0f;
+	  Model = glm::translate(Model, LightPos[i]);
+	  LightShader.Use();
+	  LightShader.SetMat4("View", MyCamera.GetViewMatrix());
+	  Model = glm::rotate(Model,
+			      glm::radians(GreenValue * 55.0f),
+			      glm::vec3(6.14f, 6.36f, 6.52f));
+	  Model = glm::translate(Model, LightPos[i]);	      
+	  Model = glm::scale(Model, glm::vec3(0.2));
+	  LightShader.SetMat4("Model", Model);
+	  glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+
+           CubeShader.Use();
+
+      glBindVertexArray(VAO[1]);	      
       
-      // CubeShader.Use();
-      // glActiveTexture(GL_TEXTURE0);
-      // glBindTexture(GL_TEXTURE_2D, RegTex[0]);
-
-
-      // CubeShader.SetFloat4("UniColor", 0.1f, GreenValue,
-      // 			   0.35f, 1.0f);
-      // glBindVertexArray(VAO[0]);
-      // for(int i = 0; i < 4; ++i)
-      // 	{
-      // 	  glm::mat4 Model = glm::mat4(1.0f);
-      // 	  LightPos[i].z = GreenValue * 2.0f;
-      // 	  LightPos[i].y = GreenValue * 2.0f;
-      // 	  LightPos[i].x = GreenValue * 5.0f;
-      // 	  Model = glm::translate(Model, LightPos[i]);
-      // 	  LightShader.Use();
-      // 	  LightShader.SetMat4("View", MyCamera.GetViewMatrix());
-      // 	  Model = glm::rotate(Model,
-      // 			      glm::radians(GreenValue * 55.0f),
-      // 			      glm::vec3(6.14f, 6.36f, 6.52f));
-      // 	  Model = glm::translate(Model, LightPos[i]);	      
-      // 	  Model = glm::scale(Model, glm::vec3(0.2));
-      // 	  LightShader.SetMat4("Model", Model);
-      // 	  glDrawArrays(GL_TRIANGLES, 0, 36);
-      // 	}
-
-      //      CubeShader.Use();
-
-      // glBindVertexArray(VAO[1]);	      
-      
-      // for(int i = 0; i < 10; ++i)
-      // 	{
-      // 	  glm::mat4 Model = glm::mat4(1.0f);
-      // 	  Model = glm::translate(Model, CubePos[i]);
-      // 	  CubeShader.SetMat4("View", MyCamera.GetViewMatrix());
-      // 	  CubeShader.SetMat4("Model", Model);
+      for(int i = 0; i < 10; ++i)
+	{
+	  glm::mat4 Model = glm::mat4(1.0f);
+	  Model = glm::translate(Model, CubePos[i]);
+	  CubeShader.SetMat4("View", MyCamera.GetViewMatrix());
+	  CubeShader.SetMat4("Model", Model);
 	  
-      // 	  CubeShader.SetVec3("PointLights[0].Position", LightPos[0]);
-      // 	  CubeShader.SetVec3("PointLights[1].Position", LightPos[1]);
-      // 	  CubeShader.SetVec3("PointLights[2].Position", LightPos[2]);
-      // 	  CubeShader.SetVec3("PointLights[3].Position", LightPos[3]);
+	  CubeShader.SetVec3("PointLights[0].Position", LightPos[0]);
+	  CubeShader.SetVec3("PointLights[1].Position", LightPos[1]);
+	  CubeShader.SetVec3("PointLights[2].Position", LightPos[2]);
+	  CubeShader.SetVec3("PointLights[3].Position", LightPos[3]);
 	  
-      // 	  CubeShader.SetVec3("SpotLight.Position",
-      // 			     MyCamera.Position);
-      // 	  CubeShader.SetVec3("CameraPos", MyCamera.Position);
-      // 	  CubeShader.SetVec3("SpotLight.Direction",
-      // 			     MyCamera.Front);
+	  CubeShader.SetVec3("SpotLight.Position",
+			     MyCamera.Position);
+	  CubeShader.SetVec3("CameraPos", MyCamera.Position);
+	  CubeShader.SetVec3("SpotLight.Direction",
+			     MyCamera.Front);
 	      
-      // 	  glDrawArrays(GL_TRIANGLES, 0, 36);
-      // 	}
-      
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      glDisable(GL_DEPTH_TEST);
-      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
 
+      glDepthFunc(GL_LEQUAL);
+      CubeMapShader.Use();
+      glm::mat4 View = glm::mat4(glm::mat3(MyCamera.GetViewMatrix()));
+      CubeMapShader.SetMat4("View", View);
+      glBindVertexArray(VAO[0]);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+      glDepthFunc(GL_TRUE);
+
+      
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      
       QuadShader.Use();
+      QuadShader.SetMat4("View", MyCamera.GetViewMatrix());
+      Model = glm::mat4(1.0f);
+      Model = glm::scale(Model, glm::vec3(3.0f, 3.0f, 1.0f));
+      QuadShader.SetMat4("Model", Model);
       glBindVertexArray(VAO[2]);
-      glDrawArrays(GL_TRIANGLES, 0, 6);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, FrameTexture);
+      glDrawArrays(GL_TRIANGLES, 0, 6);      
+
+      glDepthFunc(GL_LEQUAL);
+      CubeMapShader.Use();
+      CubeMapShader.SetMat4("View", View);
+      glBindVertexArray(VAO[0]);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+      glDepthFunc(GL_TRUE);
       
       glfwSwapBuffers(MainWindow);
       glfwPollEvents();
@@ -545,6 +593,17 @@ void InitTexture(unsigned int* TextureID, char* Path, int Num, int IsAlpha)
     }    
 
   glBindTexture(GL_TEXTURE_2D, *TextureID);
+
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+		  GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+		  GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+		  GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+		  GL_LINEAR);
+
   if(!Path)
     {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH,
@@ -581,3 +640,37 @@ void InitTexture(unsigned int* TextureID, char* Path, int Num, int IsAlpha)
   stbi_image_free(data);
 }
 
+
+
+void InitCubeMap(unsigned int* CubeID, std::vector<char*> FaceTextures)
+{
+  glGenTextures(1, CubeID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, *CubeID);
+
+  int ImgWidth;
+  int ImgHeight;
+  int ImgChannels;
+  for(unsigned int i = 0; i < FaceTextures.size(); ++i)
+    {
+      unsigned char* data = stbi_load(FaceTextures[i], &ImgWidth, &ImgHeight,
+				      &ImgChannels, 0);
+      if(data)
+	{
+	  glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, ImgWidth,
+		       ImgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
+		       data);
+	  glGenerateMipmap(GL_TEXTURE_2D);
+	}
+      else
+	{
+	  printf("SPI_ERROR -> Failed to load texture in CubeMap at path "
+		 "%s\nWill render wierdly\n", FaceTextures[i]);
+	  stbi_image_free(data);
+	}
+    }
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+}
