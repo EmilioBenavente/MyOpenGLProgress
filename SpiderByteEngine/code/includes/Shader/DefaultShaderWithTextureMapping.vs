@@ -7,8 +7,13 @@ layout (location = 3) in vec2 UV;
 
 uniform float Offset;
 uniform mat4 Model;
-uniform mat4 View;
-uniform mat4 Projection;
+
+layout (std140) uniform Matrices
+{
+  mat4 Projection;
+  mat4 View;
+};
+
 
 out vec2 TexCoords;
 out vec3 Normals;

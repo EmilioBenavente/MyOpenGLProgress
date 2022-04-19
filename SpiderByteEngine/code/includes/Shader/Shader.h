@@ -7,7 +7,7 @@ class Shader
 {
  public:
   unsigned int PROGRAM_ID;
-  Shader(const char* VertPath, const char* FragPath);
+  Shader(const char* VertPath, const char* FragPath, const char* GeometryPath);
   void Use();
   void SetBool(char* Name, bool A);
   void SetBool2(char* Name, bool A, bool B);
@@ -31,5 +31,7 @@ class Shader
   void SetMat2(char* Name, glm::mat2 Value);
   void SetMat3(char* Name, glm::mat3 Value);
   void SetMat4(char* Name, glm::mat4 Value);
+
+  void SetUniformBlockBinding(char* Name, int Value);
 };
 #endif

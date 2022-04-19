@@ -24,6 +24,11 @@ float Kernel[9] = float[](
    1.0/12.0, 4.0/12.0, 1.0/12.0,
    1.0/12.0, 2.0/12.0, 1.0/12.0
 			  );
+// float Kernel[9] = float[](
+//    -2.0, -1.0, 0.0,
+//    -1.0, 1.8, 1.0,
+//    0.0, 1.0, 2.0
+// 			  );
 
 
 void main()
@@ -38,6 +43,7 @@ void main()
     {
       FinalTexture += SampleTexture[i] * Kernel[i];
     }
-  
-  FragColor = vec4(FinalTexture, 1.0);
+
+    FragColor = texture(FrameTex, TexCoords);
+  //FragColor = vec4(FinalTexture, 1.0);
 }

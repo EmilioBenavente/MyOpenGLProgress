@@ -23,6 +23,7 @@ void MouseCallback(GLFWwindow* Window, double XPos, double YPos);
 void ProcessInput(GLFWwindow* Window);
 void ScrollCallback(GLFWwindow* Window, double XOffset, double YOffset);
 void InitTexture(char* Path, int Num, int IsAlpha);
+void InitTexture(unsigned int* TextureID, char* Path, int Num, int IsAlpha);
 
 float DeltaTime = 0.0f;
 float LastFrame = 0.0f;
@@ -162,8 +163,10 @@ int main()
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(6*sizeof(GL_FLOAT)));
-  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
+  glEnableVertexAttribArray(2);  
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(6*sizeof(GL_FLOAT)));
+  glEnableVertexAttribArray(3);
 
   
   Shader Shader1 = Shader("../SpiderByteEngine/code/includes/Shader/DefaultShader.vs", "../SpiderByteEngine/code/includes/Shader/DefaultShader.fs");
@@ -174,13 +177,82 @@ int main()
   glm::mat4 Persp = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
   Shader1.SetMat4("Projection", Persp);
 
+  Shader CubeShader("../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.vs","../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.fs");  
+  CubeShader.Use();
+  CubeShader.SetFloat("Offset", 0.26f);
+  CubeShader.SetInt("UniTexCoords", 0);
+  CubeShader.SetInt("UniTexCoords2", 1);
+  CubeShader.SetInt("Material.Ambient", 2);
+  CubeShader.SetInt("Material.Diffuse", 3);
+  CubeShader.SetInt("Material.Specular", 4);
+  CubeShader.SetFloat("Material.Shininess", 64.0f);  
+  CubeShader.SetVec3("DirLight.Direction",glm::vec3(0.0f, -1.0f, 0.0f));
+  CubeShader.SetVec3("ObjectColor", glm::vec3(0.24, 0.01, 0.56));
+  CubeShader.SetVec3("DirLight.AmbientIntensity", glm::vec3(0.2));
+  CubeShader.SetVec3("DirLight.DiffuseIntensity", glm::vec3(0.6));
+  CubeShader.SetVec3("DirLight.SpecularIntensity", glm::vec3(0.7));  
+  CubeShader.SetFloat("PointLights[0].ConstantK", 1.0f);  
+  CubeShader.SetFloat("PointLights[0].LinearK", 0.09f);
+  CubeShader.SetFloat("PointLights[0].QuadK", 0.32f);
+  CubeShader.SetVec3("PointLights[0].AmbientIntensity", glm::vec3(0.2));
+  CubeShader.SetVec3("PointLights[0].DiffuseIntensity", glm::vec3(0.6));
+  CubeShader.SetVec3("PointLights[0].SpecularIntensity",
+		     glm::vec3(0.7));  
+  CubeShader.SetFloat("PointLights[1].ConstantK", 1.0f);  
+  CubeShader.SetFloat("PointLights[1].LinearK", 0.09f);
+  CubeShader.SetFloat("PointLights[1].QuadK", 0.32f);
+  CubeShader.SetVec3("PointLights[1].AmbientIntensity", glm::vec3(0.2));
+  CubeShader.SetVec3("PointLights[1].DiffuseIntensity", glm::vec3(0.6));
+  CubeShader.SetVec3("PointLights[1].SpecularIntensity",
+		     glm::vec3(0.7));  
+  CubeShader.SetFloat("PointLights[2].ConstantK", 1.0f);  
+  CubeShader.SetFloat("PointLights[2].LinearK", 0.09f);
+  CubeShader.SetFloat("PointLights[2].QuadK", 0.32f);
+  CubeShader.SetVec3("PointLights[2].AmbientIntensity", glm::vec3(0.2));
+  CubeShader.SetVec3("PointLights[2].DiffuseIntensity", glm::vec3(0.6));
+  CubeShader.SetVec3("PointLights[2].SpecularIntensity",
+		     glm::vec3(0.7));  
+  CubeShader.SetFloat("PointLights[3].ConstantK", 1.0f);  
+  CubeShader.SetFloat("PointLights[3].LinearK", 0.09f);
+  CubeShader.SetFloat("PointLights[3].QuadK", 0.32f);
+  CubeShader.SetVec3("PointLights[3].AmbientIntensity", glm::vec3(0.2));
+  CubeShader.SetVec3("PointLights[3].DiffuseIntensity", glm::vec3(0.6));
+  CubeShader.SetVec3("PointLights[3].SpecularIntensity",
+		     glm::vec3(0.7));  
+  CubeShader.SetFloat("SpotLight.ConstantK", 1.0f);  
+  CubeShader.SetFloat("SpotLight.LinearK", 0.09f);
+  CubeShader.SetFloat("SpotLight.QuadK", 0.32f);
+  CubeShader.SetVec3("SpotLight.AmbientIntensity", glm::vec3(0.2));
+  CubeShader.SetVec3("SpotLight.DiffuseIntensity", glm::vec3(1.0));
+  CubeShader.SetVec3("SpotLight.SpecularIntensity", glm::vec3(0.7));  
+  CubeShader.SetFloat("SpotLight.SpotlightCutoffRAD",
+		      glm::cos(glm::radians(1.0f)));
+  CubeShader.SetFloat("SpotLight.OuterConeCutoffRAD",
+		      glm::cos(glm::radians(20.0f)));
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);  
-  InitTexture("../SpiderByteEngine/res/container.jpg", 0, 0);
-  InitTexture("../SpiderByteEngine/res/awesomeface.png", 1, 1);
+  CubeShader.SetMat4("Projection", Persp);
+  
+  unsigned int RegTex[5];
+  InitTexture(&RegTex[0], "../SpiderByteEngine/res/container.jpg", 0, 0);
+  InitTexture(&RegTex[1], "../SpiderByteEngine/res/awesomeface.png", 1, 1);
+  InitTexture(&RegTex[2], "../SpiderByteEngine/res/container2_ambient.png", 2, 1);
+  InitTexture(&RegTex[3], "../SpiderByteEngine/res/container2.png", 3, 1);  
+  InitTexture(&RegTex[4], "../SpiderByteEngine/res/container2_specular.png", 4, 1);  
+  CubeShader.SetMat4("View", MyCamera.GetViewMatrix());
+
+
+  glm::vec3 LightPos[] =
+    {
+      glm::vec3(0.1f, 2.0f, -3.0f),
+      glm::vec3(10.0f, 5.0f, 2.0f),
+      glm::vec3(-2.0f, 3.0f, -2.0f),
+      glm::vec3(5.0f, 5.0f, 4.0f),
+    };
+	  
+  CubeShader.SetVec3("PointLights[0].Position", LightPos[0]);
+  CubeShader.SetVec3("PointLights[1].Position", LightPos[1]);
+  CubeShader.SetVec3("PointLights[2].Position", LightPos[2]);
+  CubeShader.SetVec3("PointLights[3].Position", LightPos[3]);
 
   Block b;
   b.P1 = TPos[0];
@@ -188,7 +260,8 @@ int main()
   b.P3 = TPos[2];
   b.P4 = TPos[3];  
   Pieces[0] = b;
-  
+
+  CubeShader.Use();
   float MovementTime = 0.0f;
   //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   //@NOTE(Emilio): Main Game Loop
@@ -293,33 +366,39 @@ int main()
       
       float GreenValue = (sin(CurrentFrame) / 2.0f) + 0.5f;
       float BackValue = (sin(CurrentFrame) / 9.0f) + 0.5f;
-      Shader1.SetFloat4("UniColor", 0.1f, GreenValue, 0.35f, 1.0f);
+      CubeShader.SetFloat4("UniColor", 0.1f, GreenValue, 0.35f, 1.0f);
+	  
+      CubeShader.SetVec3("SpotLight.Position",
+			 MyCamera.Position);
+      CubeShader.SetVec3("CameraPos", MyCamera.Position);
+      CubeShader.SetVec3("SpotLight.Direction",
+			 MyCamera.Front);
       
       glClearColor(0.73f, BackValue, 1.0f - BackValue, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       MyCamera.Position = glm::vec3(0.0f, 0.0f, (GreenValue * 20.0f) + 3.0f);
-      Shader1.SetMat4("View", MyCamera.GetViewMatrix());
+      CubeShader.SetMat4("View", MyCamera.GetViewMatrix());
       for(int i = 0; i <= PieceIndex; ++i)
 	{
 	  glm::mat4 Model = glm::mat4(1.0f);
 	  Model = glm::translate(Model, Pieces[i].P1);
-	  Shader1.SetMat4("Model", Model);
+	  CubeShader.SetMat4("Model", Model);
 	  glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	  Model = glm::mat4(1.0f);
 	  Model = glm::translate(Model, Pieces[i].P2);
-	  Shader1.SetMat4("Model", Model);
+	  CubeShader.SetMat4("Model", Model);
 	  glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	  Model = glm::mat4(1.0f);
 	  Model = glm::translate(Model, Pieces[i].P3);
-	  Shader1.SetMat4("Model", Model);
+	  CubeShader.SetMat4("Model", Model);
 	  glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	  Model = glm::mat4(1.0f);
 	  Model = glm::translate(Model, Pieces[i].P4);
-	  Shader1.SetMat4("Model", Model);
+	  CubeShader.SetMat4("Model", Model);
 	  glDrawArrays(GL_TRIANGLES, 0, 6);
 	  
 	}
@@ -460,6 +539,78 @@ void InitTexture(char* Path, int Num, int IsAlpha)
   else
     {
       printf("SPI_ERROR -> Failed to load texture at path %s\nWill render wierdly\n", Path);
+    }
+  stbi_image_free(data);
+}
+
+void InitTexture(unsigned int* TextureID, char* Path, int Num, int IsAlpha)
+{
+  glGenTextures(1, TextureID);  
+  if(Num == 0)
+    {
+      glActiveTexture(GL_TEXTURE0);
+    }
+  else if(Num == 1)
+    {
+      glActiveTexture(GL_TEXTURE1);
+    }
+  else if(Num == 2)
+    {
+      glActiveTexture(GL_TEXTURE2);
+    }    
+  else if(Num == 3)
+    {
+      glActiveTexture(GL_TEXTURE3);
+    }
+  else
+    {
+      glActiveTexture(GL_TEXTURE4);
+    }    
+
+  glBindTexture(GL_TEXTURE_2D, *TextureID);
+
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+		  GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+		  GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+		  GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+		  GL_LINEAR);
+
+  if(!Path)
+    {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH,
+		   HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+      return;
+    }
+  
+  int ImgWidth;
+  int ImgHeight;
+  int ImgChannels;
+  unsigned char* data = stbi_load(Path, &ImgWidth, &ImgHeight,
+				  &ImgChannels, 0);
+  if(data)
+    {
+      if(IsAlpha)
+	{
+	  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ImgWidth,
+		       ImgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+		       data);
+	}
+      else
+	{
+	  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ImgWidth,
+		       ImgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
+		       data);
+	}      
+      glGenerateMipmap(GL_TEXTURE_2D);
+    }
+  else
+    {
+      printf("SPI_ERROR -> Failed to load texture at path "
+	     "%s\nWill render wierdly\n", Path);
     }
   stbi_image_free(data);
 }

@@ -4,8 +4,10 @@ in vec3 TexCoords;
 out vec4 FragColor;
 
 uniform samplerCube Cubemap;
+uniform vec4 TextureMult;
+
 
 void main()
 {
-  FragColor = texture(Cubemap, TexCoords);
+  FragColor = TextureMult + texture(Cubemap, TexCoords);
 }

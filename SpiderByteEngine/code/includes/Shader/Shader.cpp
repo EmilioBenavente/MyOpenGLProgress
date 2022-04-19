@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-Shader::Shader(const char* VertPath, const char* FragPath)
+Shader::Shader(const char* VertPath, const char* FragPath, const char* GeometryPath)
 {
   std::string VertexCode;
   std::string FragmentCode;
@@ -40,11 +40,14 @@ Shader::Shader(const char* VertPath, const char* FragPath)
       printf("SPI_ERROR -> Unable to extract data from ShaderFiles with given path\n"
              "Vertex Shader Path -> %s\nFragment Shader Path -> %s\n", VertPath, FragPath);
     }
+  
   const char* VertShaderCode = VertexCode.c_str();
   const char* FragShaderCode = FragmentCode.c_str();
 
   unsigned int Vertex;
   unsigned int Fragment;
+  unsigned int Geometry;
+  
   int SUCCESS;
   char InfoLog[512];
 
@@ -66,9 +69,45 @@ Shader::Shader(const char* VertPath, const char* FragPath)
       glGetShaderInfoLog(Fragment, 512, 0, InfoLog);
       printf("SPI_ERROR -> Unable to Compile the Fragment Shader With Given Path %s\nand ID[%d]\n%s\n", FragPath, Fragment, InfoLog);
     }
+
   PROGRAM_ID = glCreateProgram();
   glAttachShader(PROGRAM_ID, Vertex);
   glAttachShader(PROGRAM_ID, Fragment);
+
+  if(GeometryPath)
+    {
+      std::string GeometryCode;
+      std::ifstream GeometryFileBuffer;
+      GeometryFileBuffer.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+      try
+	{
+	  GeometryFileBuffer.open(GeometryPath);
+	  std::stringstream GeoShaderStream;
+	  GeoShaderStream << GeometryFileBuffer.rdbuf();
+	  GeometryFileBuffer.close();
+	  GeometryCode = GeoShaderStream.str();
+	}
+      catch(std::ifstream::failure e)
+	{
+	  printf("SPI_ERROR -> Unable to extract data from Geometry ShaderFile"
+		 "with path\n%s\n", GeometryPath);
+	}
+      const char* GeoShaderCode = GeometryCode.c_str();
+
+      Geometry = glCreateShader(GL_GEOMETRY_SHADER);
+      glShaderSource(Geometry, 1, &GeoShaderCode, 0);
+      glCompileShader(Geometry);
+      glGetShaderiv(Geometry, GL_COMPILE_STATUS, &SUCCESS);
+      if(!SUCCESS)
+	{
+	  glGetShaderInfoLog(Geometry, 512, 0, InfoLog);
+	  printf("SPI_ERROR -> Unable to Compile the Geometry Shader With Given Path %s\nand ID[%d]\n%s\n", GeometryPath, Geometry, InfoLog);
+	}
+      glAttachShader(PROGRAM_ID, Geometry);
+    }
+
+  
   glLinkProgram(PROGRAM_ID);
   glDeleteShader(Vertex);
   glDeleteShader(Fragment);
@@ -168,4 +207,9 @@ void Shader::SetMat3(char* Name, glm::mat3 Value)
 void Shader::SetMat4(char* Name, glm::mat4 Value)
 {
   glUniformMatrix4fv(glGetUniformLocation(PROGRAM_ID, Name), 1, GL_FALSE, glm::value_ptr(Value));
+}
+
+void Shader::SetUniformBlockBinding(char* Name, int Value)
+{
+  glUniformBlockBinding(PROGRAM_ID, glGetUniformBlockIndex(PROGRAM_ID, Name), Value);
 }

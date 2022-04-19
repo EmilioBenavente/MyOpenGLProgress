@@ -102,8 +102,12 @@ void main()
     }
   ResultColor += CalcSpotLight(SpotLight, Normal,
 			       FragWorldPos, CameraDir);
-  
-  FragColor = vec4(ResultColor, 1.0) * UniColor;
+
+  FragColor = vec4(1.0);
+  // if(gl_FragCoord.x < gl_FragCoord.y)
+  //   FragColor = vec4(ResultColor, 1.0) * UniColor;
+  // else
+  //   FragColor = vec4(PreLight, 1.0);
 }
 
 
