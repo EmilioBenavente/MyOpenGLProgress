@@ -33,6 +33,7 @@ float Kernel[9] = float[](
 
 void main()
 {
+  //  FragColor = vec4(0.54, 0.0, 0.13, 1.0);
   vec3 SampleTexture[9];
   for(int i = 0; i < 9; ++i)
     {
@@ -44,6 +45,6 @@ void main()
       FinalTexture += SampleTexture[i] * Kernel[i];
     }
 
-    FragColor = texture(FrameTex, TexCoords);
-  //FragColor = vec4(FinalTexture, 1.0);
+   FragColor = texture(FrameTex, TexCoords);
+  // FragColor = vec4(FinalTexture, 1.0);
 }

@@ -5,8 +5,12 @@ layout (location = 2) in vec2 InUVs;
 
 out vec2 TexCoords;
 
-uniform mat4 Projection;
-uniform mat4 View;
+layout (std140) uniform Matrices
+{
+  uniform mat4 Projection;
+  uniform mat4 View;
+};
+
 uniform mat4 Model;
 
 void main()

@@ -70,9 +70,6 @@ Shader::Shader(const char* VertPath, const char* FragPath, const char* GeometryP
       printf("SPI_ERROR -> Unable to Compile the Fragment Shader With Given Path %s\nand ID[%d]\n%s\n", FragPath, Fragment, InfoLog);
     }
 
-  PROGRAM_ID = glCreateProgram();
-  glAttachShader(PROGRAM_ID, Vertex);
-  glAttachShader(PROGRAM_ID, Fragment);
 
   if(GeometryPath)
     {
@@ -104,13 +101,22 @@ Shader::Shader(const char* VertPath, const char* FragPath, const char* GeometryP
 	  glGetShaderInfoLog(Geometry, 512, 0, InfoLog);
 	  printf("SPI_ERROR -> Unable to Compile the Geometry Shader With Given Path %s\nand ID[%d]\n%s\n", GeometryPath, Geometry, InfoLog);
 	}
+
+    }
+  PROGRAM_ID = glCreateProgram();
+  glAttachShader(PROGRAM_ID, Vertex);
+  glAttachShader(PROGRAM_ID, Fragment);
+  if(GeometryPath)
+    {
       glAttachShader(PROGRAM_ID, Geometry);
     }
-
-  
   glLinkProgram(PROGRAM_ID);
   glDeleteShader(Vertex);
   glDeleteShader(Fragment);
+  if(GeometryPath)
+    {
+      glDeleteShader(Geometry);
+    }  
 }
 
 void Shader::Use()

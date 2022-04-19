@@ -133,7 +133,7 @@ int main()
   //opengl to us 
   glfwSetFramebufferSizeCallback(MainWindow, FramebufferResize);
   glEnable(GL_DEPTH_TEST);
-   // glEnable(GL_PROGRAM_POINT_SIZE);
+   glEnable(GL_PROGRAM_POINT_SIZE);
   glfwSetInputMode(MainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(MainWindow, MouseCallback);
   glfwSetScrollCallback(MainWindow, ScrollCallback);
@@ -478,13 +478,14 @@ int main()
 
   Shader QuadShader("../SpiderByteEngine/code/includes/Shader/DefaultFrameShader.vs", "../SpiderByteEngine/code/includes/Shader/DefaultFrameShader.fs", 0);
   QuadShader.Use();
+  QuadShader.SetUniformBlockBinding("Matrices", 0);
   QuadShader.SetInt("FrameTex", 0);
 
   Shader CubeMapShader("../SpiderByteEngine/code/includes/Shader/DefaultCube.vs","../SpiderByteEngine/code/includes/Shader/DefaultCube.fs", 0);
   CubeMapShader.Use();
   CubeMapShader.SetVec4("TextureMult", glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
   
-  Shader CubeShader("../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.vs","../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.fs", "../SpiderByteEngine/code/includes/Shader/DefaultShader.gs");  
+  Shader CubeShader("../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.vs","../SpiderByteEngine/code/includes/Shader/DefaultShaderWithTextureMapping.fs","../SpiderByteEngine/code/includes/Shader/DefaultShader.gs");  
   CubeShader.Use();
   CubeShader.SetUniformBlockBinding("Matrices", 0);
   CubeShader.SetFloat("Offset", 0.26f);
@@ -548,8 +549,6 @@ int main()
   
   LightShader.Use();
   LightShader.SetMat4("Projection", Persp);
-  QuadShader.Use();
-  QuadShader.SetMat4("Projection", Persp);
   CubeMapShader.Use();
   CubeMapShader.SetMat4("Projection", Persp);
   
@@ -722,50 +721,40 @@ int main()
       glBindBuffer(GL_UNIFORM_BUFFER, 0);
       
       
-      // glBindFramebuffer(GL_FRAMEBUFFER, FBOFront);
-      // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-      // RenderWorld1(CubeShader, LightShader, CubeMapShader);      
+      glBindFramebuffer(GL_FRAMEBUFFER, FBOFront);
+      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+      RenderWorld1(CubeShader, LightShader, CubeMapShader);      
 
-      // glBindFramebuffer(GL_FRAMEBUFFER, FBOBack);
-      // glClearColor(0.25f, 0.12f, 0.12f, 1.0f);
-      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-      // RenderWorld2(CubeShader, LightShader);      
+      glBindFramebuffer(GL_FRAMEBUFFER, FBOBack);
+      glClearColor(0.25f, 0.12f, 0.12f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+      RenderWorld2(CubeShader, LightShader);      
 
-      // glBindFramebuffer(GL_FRAMEBUFFER, FBOLeft);
-      // glClearColor(0.12f, 0.25f, 0.12f, 1.0f);
-      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-      // RenderWorld3(CubeShader, LightShader);      
+      glBindFramebuffer(GL_FRAMEBUFFER, FBOLeft);
+      glClearColor(0.12f, 0.25f, 0.12f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+      RenderWorld3(CubeShader, LightShader);      
       
-      // glBindFramebuffer(GL_FRAMEBUFFER, FBORight);
-      // glClearColor(0.12f, 0.12f, 0.32f, 1.0f);
-      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-      // RenderWorld4(CubeShader, LightShader, CubeMapShader);      
+      glBindFramebuffer(GL_FRAMEBUFFER, FBORight);
+      glClearColor(0.12f, 0.12f, 0.32f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+      RenderWorld4(CubeShader, LightShader, CubeMapShader);      
 
-      // glBindFramebuffer(GL_FRAMEBUFFER, FBOTop);
-      // glClearColor(0.12f, 0.32f, 0.32f, 1.0f);
-      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-      // RenderWorld5(CubeShader, LightShader);      
+      glBindFramebuffer(GL_FRAMEBUFFER, FBOTop);
+      glClearColor(0.12f, 0.32f, 0.32f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+      RenderWorld5(CubeShader, LightShader);      
 
-      // glBindFramebuffer(GL_FRAMEBUFFER, FBOBottom);
-      // glClearColor(0.68f, 0.55f, 0.12f, 1.0f);
-      // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-      // RenderWorld6(CubeShader, ModelMesh);      
-      
+      glBindFramebuffer(GL_FRAMEBUFFER, FBOBottom);
+      glClearColor(0.68f, 0.55f, 0.12f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+      RenderWorld6(CubeShader, ModelMesh);            
       
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      glClearColor(0.54f, 0.0f, 1.0f, 1.0f);
+      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-      CubeShader.Use();
-      CubeShader.SetMat4("Model", glm::mat4(1.0f));
-      CubeShader.SetMat4("View", MyCamera.GetViewMatrix());      
-      glBindVertexArray(VAO[1]);	      	      
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-
-      // RenderMainWorld(QuadShader, CubeMapShader);
+      RenderMainWorld(QuadShader, CubeMapShader);
 
       glfwSwapBuffers(MainWindow);
       glfwPollEvents();
@@ -1453,7 +1442,6 @@ void RenderMainWorld(Shader QuadShader, Shader CubeMapShader)
   glm::mat4 Model = glm::mat4(1.0f);
   glm::mat4 View = glm::mat4(glm::mat3(MyCamera.GetViewMatrix()));
   QuadShader.Use();
-  QuadShader.SetMat4("View", MyCamera.GetViewMatrix());
   Model = glm::mat4(1.0f);
   Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, -10.0f));
   Model = glm::rotate(Model, (float)glfwGetTime() / 2.0f, glm::vec3(5.0f, 2.0f, 5.0f));  
